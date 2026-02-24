@@ -346,7 +346,7 @@ export default function CalibrationPage() {
           </span>
           <p>
             <strong>{`${stats.overdue} alat sudah melewati jadwal kalibrasi!`}</strong>
-            {' '}Segera catat rekalibrasi untuk menghindari hasil pengukuran tidak valid.
+            {' '}Segera update data kalibrasi melalui Admin Panel.
           </p>
         </div>
       )}
@@ -517,11 +517,6 @@ export default function CalibrationPage() {
         )}
       </section>
 
-      {stats.noData > 0 && (
-        <div className="notice" style={{ marginTop: 14 }}>
-          {`${stats.noData} alat belum punya data kalibrasi lengkap. Lengkapi melalui Admin Panel.`}
-        </div>
-      )}
     </DashboardLayout>
   );
 }
