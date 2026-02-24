@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sample — Jadwal Kalibrasi Alat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --surface: #131720;
+            --surface2: #1a1f2e;
+            --border: rgba(255, 255, 255, 0.06);
+            --text: #e4e4ec;
+            --text2: #7a8299;
+            --accent: #6C5CE7;
+            --accent2: #a29bfe;
+            --green: #00b894;
+            --green-bg: rgba(0, 184, 148, .1);
+            --yellow: #ffc048;
+            --yellow-bg: rgba(255, 192, 72, .1);
+            --orange: #ff8c42;
+            --orange-bg: rgba(255, 140, 66, .1);
+            --red: #e05252;
+            --red-bg: rgba(224, 82, 82, .1);
+            --blue: #74b9ff;
+            --blue-bg: rgba(116, 185, 255, .1);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Layout */
+        .app {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-kicker {
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            margin-bottom: 6px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text2);
+            margin-top: 6px;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+
+        /* Summary cards row */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .summary-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .summary-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: border-color .3s, transform .2s;
+        }
+
+        .summary-card:hover {
+            border-color: rgba(108, 92, 231, .25);
+            transform: translateY(-2px);
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .summary-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        /* Alert banner */
+        .alert-banner {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            font-size: 14px;
+            animation: alertPulse 3s ease infinite;
+        }
+
+        .alert-banner.critical {
+            background: var(--red-bg);
+            border: 1px solid rgba(224, 82, 82, .25);
+            color: var(--red);
+        }
+
+        .alert-banner .alert-icon {
+            font-size: 22px;
+        }
+
+        .alert-banner strong {
+            color: #fff;
+        }
+
+        @keyframes alertPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .85;
+            }
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: inherit;
+            width: 280px;
+            outline: none;
+            transition: border-color .3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-input::placeholder {
+            color: var(--text2);
+        }
+
+        .filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background .2s, transform .2s;
+        }
+
+        .btn-primary:hover {
+            background: #5a4bd6;
+            transform: translateY(-1px);
+        }
+
+        /* Table */
+        .table-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--surface2);
+        }
+
+        th {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px 18px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(108, 92, 231, .03);
+        }
+
+        .equip-name {
+            font-weight: 600;
+            color: #fff;
+            display: block;
+        }
+
+        .equip-seri {
+            font-size: 11px;
+            color: var(--text2);
+            font-family: 'Courier New', monospace;
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .3px;
+            white-space: nowrap;
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .badge-overdue {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .badge-overdue .badge-dot {
+            background: var(--red);
+            animation: blink 1.2s infinite;
+        }
+
+        .badge-urgent {
+            background: var(--orange-bg);
+            color: var(--orange);
+        }
+
+        .badge-urgent .badge-dot {
+            background: var(--orange);
+            animation: blink 2s infinite;
+        }
+
+        .badge-soon {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+        }
+
+        .badge-soon .badge-dot {
+            background: var(--yellow);
+        }
+
+        .badge-ok {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .badge-ok .badge-dot {
+            background: var(--green);
+        }
+
+        .badge-done {
+            background: var(--blue-bg);
+            color: var(--blue);
+        }
+
+        .badge-done .badge-dot {
+            background: var(--blue);
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .3
+            }
+        }
+
+        /* Progress bar for days */
+        .days-cell {
+            min-width: 140px;
+        }
+
+        .days-bar-wrap {
+            height: 6px;
+            border-radius: 99px;
+            background: var(--surface2);
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .days-bar {
+            height: 100%;
+            border-radius: 99px;
+            transition: width .5s ease;
+        }
+
+        .days-text {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* Action buttons in table */
+        .action-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .action-btn+.action-btn {
+            margin-left: 6px;
+        }
+
+        /* Calendar section */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Timeline cards */
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 14px;
+        }
+
+        .cal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: border-color .3s, transform .2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cal-card:hover {
+            border-color: rgba(108, 92, 231, .25);
+            transform: translateY(-2px);
+        }
+
+        .cal-card-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .cal-card-date {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .cal-card-equip {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .cal-card-seri {
+            font-size: 11px;
+            color: var(--text2);
+            font-family: monospace;
+            margin-top: 2px;
+        }
+
+        .cal-card-info {
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .cal-card-info strong {
+            color: var(--text);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 32px;
+            padding: 16px 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Tooltip */
+        .info-tip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--surface2);
+            color: var(--text2);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+        }
+
+        .info-tip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #222;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 400;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        /* Note section */
+        .note-box {
+            margin-top: 40px;
+            padding: 28px;
+            background: linear-gradient(135deg, rgba(108, 92, 231, .08), rgba(0, 184, 148, .05));
+            border: 1px solid rgba(108, 92, 231, .2);
+            border-radius: var(--radius);
+        }
+
+        .note-box h3 {
+            color: var(--accent2);
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+
+        .note-box ul {
+            padding-left: 20px;
+        }
+
+        .note-box li {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.8;
+            margin-bottom: 4px;
+        }
+
+        .note-box li strong {
+            color: var(--text);
+        }
+
+        .note-box .note-section {
+            margin-bottom: 18px;
+        }
+
+        .note-box .note-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .note-box h4 {
+            color: var(--text);
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+        <!-- Page Header -->
+        <div class="page-header">
+            <p class="page-kicker">Manajemen Kalibrasi</p>
+            <h1 class="page-title">📅 Jadwal Kalibrasi Alat</h1>
+            <p class="page-subtitle">
+                Pantau jadwal kalibrasi tahunan semua alat ukur. Sistem akan memberi peringatan otomatis
+                saat mendekati atau melewati jadwal kalibrasi.
+            </p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-icon" style="background:var(--red-bg);">🚨</div>
+                <div>
+                    <div class="summary-num" style="color:var(--red);">3</div>
+                    <div class="summary-label">Overdue (Lewat Jadwal)</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon" style="background:var(--orange-bg);">⚠️</div>
+                <div>
+                    <div class="summary-num" style="color:var(--orange);">5</div>
+                    <div class="summary-label">Segera (< 30 hari)</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon" style="background:var(--yellow-bg);">📋</div>
+                    <div>
+                        <div class="summary-num" style="color:var(--yellow);">12</div>
+                        <div class="summary-label">Dalam 90 Hari</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon" style="background:var(--green-bg);">✅</div>
+                    <div>
+                        <div class="summary-num" style="color:var(--green);">122</div>
+                        <div class="summary-label">Terkalibrasi (Aman)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Banner -->
+            <div class="alert-banner critical">
+                <span class="alert-icon">🚨</span>
+                <span><strong>3 alat sudah melewati jadwal kalibrasi!</strong> — Segera jadwalkan ulang untuk
+                    menghindari hasil pengukuran yang tidak valid.</span>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <input type="text" class="search-input" placeholder="Cari nama alat atau no seri..." />
+                <button class="filter-btn active">Semua</button>
+                <button class="filter-btn">🚨 Overdue</button>
+                <button class="filter-btn">⚠️ Segera</button>
+                <button class="filter-btn">📋 Mendatang</button>
+                <button class="filter-btn">✅ Aman</button>
+                <span class="spacer"></span>
+                <button class="btn-primary">+ Catat Kalibrasi Baru</button>
+            </div>
+
+            <!-- Main Table -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alat</th>
+                            <th>Kalibrasi Terakhir</th>
+                            <th>Kalibrasi Berikutnya</th>
+                            <th>Sisa Waktu</th>
+                            <th>Status</th>
+                            <th>Lab / Penyedia</th>
+                            <th>No. Sertifikat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- OVERDUE items -->
+                        <tr>
+                            <td>
+                                <span class="equip-name">Timbangan Analitik</span>
+                                <span class="equip-seri">TA-001-MTLR</span>
+                            </td>
+                            <td>12 Jan 2025</td>
+                            <td style="color:var(--red);font-weight:600;">12 Jan 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--red);">29 hari lewat</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:100%;background:var(--red);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-overdue"><span class="badge-dot"></span>OVERDUE</span></td>
+                            <td style="font-size:12px;">PT Calibration Lab Indo</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-0142</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="equip-name">Altimeter Digital</span>
+                                <span class="equip-seri">Alt TES 001</span>
+                            </td>
+                            <td>28 Des 2024</td>
+                            <td style="color:var(--red);font-weight:600;">28 Des 2025</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--red);">44 hari lewat</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:100%;background:var(--red);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-overdue"><span class="badge-dot"></span>OVERDUE</span></td>
+                            <td style="font-size:12px;">LIPI Serpong</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2024-1287</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="equip-name">Pressure Gauge 100 PSI</span>
+                                <span class="equip-seri">PG-100-003</span>
+                            </td>
+                            <td>05 Nov 2024</td>
+                            <td style="color:var(--red);font-weight:600;">05 Nov 2025</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--red);">97 hari lewat</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:100%;background:var(--red);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-overdue"><span class="badge-dot"></span>OVERDUE</span></td>
+                            <td style="font-size:12px;">Sucofindo Jakarta</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2024-0983</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+
+                        <!-- URGENT items -->
+                        <tr>
+                            <td>
+                                <span class="equip-name">Thermometer Infrared</span>
+                                <span class="equip-seri">TIR-FLUKE-02</span>
+                            </td>
+                            <td>22 Feb 2025</td>
+                            <td style="color:var(--orange);font-weight:600;">22 Feb 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--orange);">12 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:92%;background:var(--orange);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-urgent"><span class="badge-dot"></span>SEGERA</span></td>
+                            <td style="font-size:12px;">PT Calibration Lab Indo</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-0203</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="equip-name">Multimeter Digital</span>
+                                <span class="equip-seri">MM-KEW-1012</span>
+                            </td>
+                            <td>03 Mar 2025</td>
+                            <td style="color:var(--orange);font-weight:600;">03 Mar 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--orange);">21 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:85%;background:var(--orange);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-urgent"><span class="badge-dot"></span>SEGERA</span></td>
+                            <td style="font-size:12px;">KAN Laboratory</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-0287</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+
+                        <!-- COMING SOON items -->
+                        <tr>
+                            <td>
+                                <span class="equip-name">Anak Timbang 20kg</span>
+                                <span class="equip-seri">AT-20KG-001</span>
+                            </td>
+                            <td>15 Apr 2025</td>
+                            <td style="color:var(--yellow);">15 Apr 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--yellow);">64 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:65%;background:var(--yellow);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-soon"><span class="badge-dot"></span>MENDATANG</span></td>
+                            <td style="font-size:12px;">BSML Bandung</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-0451</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="equip-name">Clamp Meter AC/DC</span>
+                                <span class="equip-seri">CM-HIO-308</span>
+                            </td>
+                            <td>20 Mei 2025</td>
+                            <td style="color:var(--yellow);">20 Mei 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--yellow);">99 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:50%;background:var(--yellow);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-soon"><span class="badge-dot"></span>MENDATANG</span></td>
+                            <td style="font-size:12px;">PT Calibration Lab Indo</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-0512</td>
+                            <td>
+                                <button class="action-btn">📅 Jadwalkan</button>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+
+                        <!-- ON SCHEDULE items -->
+                        <tr>
+                            <td>
+                                <span class="equip-name">Oscilloscope 200MHz</span>
+                                <span class="equip-seri">OSC-TEK-2024</span>
+                            </td>
+                            <td>10 Agu 2025</td>
+                            <td style="color:var(--green);">10 Agu 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--green);">181 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:25%;background:var(--green);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-ok"><span class="badge-dot"></span>AMAN</span></td>
+                            <td style="font-size:12px;">Tektronix Service Center</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-0891</td>
+                            <td>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="equip-name">Jangka Sorong Digital</span>
+                                <span class="equip-seri">JS-MIT-500</span>
+                            </td>
+                            <td>01 Okt 2025</td>
+                            <td style="color:var(--green);">01 Okt 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--green);">233 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:12%;background:var(--green);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-ok"><span class="badge-dot"></span>AMAN</span></td>
+                            <td style="font-size:12px;">PT Calibration Lab Indo</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-1102</td>
+                            <td>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="equip-name">Mikrometer Luar 0-25mm</span>
+                                <span class="equip-seri">MK-MIT-193</span>
+                            </td>
+                            <td>18 Nov 2025</td>
+                            <td style="color:var(--green);">18 Nov 2026</td>
+                            <td class="days-cell">
+                                <span class="days-text" style="color:var(--green);">281 hari lagi</span>
+                                <div class="days-bar-wrap">
+                                    <div class="days-bar" style="width:5%;background:var(--green);"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-ok"><span class="badge-dot"></span>AMAN</span></td>
+                            <td style="font-size:12px;">BSML Bandung</td>
+                            <td style="font-size:11px;font-family:monospace;color:var(--text2);">CAL-2025-1240</td>
+                            <td>
+                                <button class="action-btn">📄 Sertifikat</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Upcoming Calendar Cards -->
+            <div class="section-header">
+                <h2 class="section-title">📆 Jadwal Terdekat (Februari — April 2026)</h2>
+            </div>
+
+            <div class="timeline-grid">
+                <div class="cal-card">
+                    <div class="cal-card-accent" style="background:var(--red);"></div>
+                    <div class="cal-card-date" style="color:var(--red);">🚨 OVERDUE — 12 Jan 2026</div>
+                    <div class="cal-card-equip">Timbangan Analitik</div>
+                    <div class="cal-card-seri">TA-001-MTLR</div>
+                    <div class="cal-card-info">
+                        <strong>Lab:</strong> PT Calibration Lab Indo<br>
+                        <strong>Interval:</strong> 12 bulan<br>
+                        <strong>Biaya estimasi:</strong> Rp 2.500.000
+                    </div>
+                </div>
+
+                <div class="cal-card">
+                    <div class="cal-card-accent" style="background:var(--orange);"></div>
+                    <div class="cal-card-date" style="color:var(--orange);">⚠️ 12 HARI LAGI — 22 Feb 2026</div>
+                    <div class="cal-card-equip">Thermometer Infrared</div>
+                    <div class="cal-card-seri">TIR-FLUKE-02</div>
+                    <div class="cal-card-info">
+                        <strong>Lab:</strong> PT Calibration Lab Indo<br>
+                        <strong>Interval:</strong> 12 bulan<br>
+                        <strong>Biaya estimasi:</strong> Rp 1.800.000
+                    </div>
+                </div>
+
+                <div class="cal-card">
+                    <div class="cal-card-accent" style="background:var(--orange);"></div>
+                    <div class="cal-card-date" style="color:var(--orange);">⚠️ 21 HARI LAGI — 03 Mar 2026</div>
+                    <div class="cal-card-equip">Multimeter Digital</div>
+                    <div class="cal-card-seri">MM-KEW-1012</div>
+                    <div class="cal-card-info">
+                        <strong>Lab:</strong> KAN Laboratory<br>
+                        <strong>Interval:</strong> 12 bulan<br>
+                        <strong>Biaya estimasi:</strong> Rp 1.200.000
+                    </div>
+                </div>
+
+                <div class="cal-card">
+                    <div class="cal-card-accent" style="background:var(--yellow);"></div>
+                    <div class="cal-card-date" style="color:var(--yellow);">📋 64 HARI LAGI — 15 Apr 2026</div>
+                    <div class="cal-card-equip">Anak Timbang 20kg</div>
+                    <div class="cal-card-seri">AT-20KG-001</div>
+                    <div class="cal-card-info">
+                        <strong>Lab:</strong> BSML Bandung<br>
+                        <strong>Interval:</strong> 12 bulan<br>
+                        <strong>Biaya estimasi:</strong> Rp 3.000.000
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item"><span class="legend-dot" style="background:var(--red);"></span> Overdue — Lewat
+                    jadwal kalibrasi</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span> Segera —
+                    Kurang dari 30 hari</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--yellow);"></span> Mendatang —
+                    30-90 hari lagi</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--green);"></span> Aman — Lebih
+                    dari 90 hari</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--blue);"></span> Selesai — Baru
+                    dikalibrasi</div>
+            </div>
+
+            <!-- Info section explaining what data is needed -->
+            <div class="note-box">
+                <h3>💡 Data yang Dibutuhkan per Alat</h3>
+
+                <div class="note-section">
+                    <h4>📝 Field Baru di Google Sheets (kolom tambahan):</h4>
+                    <ul>
+                        <li><strong>Tanggal Kalibrasi Terakhir</strong> — kapan terakhir alat dikalibrasi</li>
+                        <li><strong>Interval Kalibrasi (bulan)</strong> — biasanya 12 bulan, tapi bisa 6 atau 24
+                            tergantung alat</li>
+                        <li><strong>No. Sertifikat Kalibrasi</strong> — nomor sertifikat dari lab kalibrasi</li>
+                        <li><strong>Lab / Penyedia Kalibrasi</strong> — nama lab yang melakukan kalibrasi</li>
+                        <li><strong>Biaya Kalibrasi</strong> — estimasi biaya untuk perencanaan budget (opsional)</li>
+                        <li><strong>File Sertifikat (URL)</strong> — link ke scan PDF sertifikat (opsional, bisa Google
+                            Drive)</li>
+                    </ul>
+                </div>
+
+                <div class="note-section">
+                    <h4>⚙️ Otomatis Dihitung oleh Sistem:</h4>
+                    <ul>
+                        <li><strong>Tanggal Kalibrasi Berikutnya</strong> = Tanggal Terakhir + Interval</li>
+                        <li><strong>Sisa Hari</strong> = Tanggal Berikutnya - Hari Ini</li>
+                        <li><strong>Status</strong> = Overdue / Segera / Mendatang / Aman (berdasarkan sisa hari)</li>
+                        <li><strong>Alert Banner</strong> = Muncul otomatis jika ada alat overdue</li>
+                    </ul>
+                </div>
+
+                <div class="note-section">
+                    <h4>🔔 Aturan Notifikasi:</h4>
+                    <ul>
+                        <li>🚨 <strong style="color:var(--red);">OVERDUE</strong> — Sisa hari ≤ 0 (sudah lewat jadwal)
+                        </li>
+                        <li>⚠️ <strong style="color:var(--orange);">SEGERA</strong> — Sisa hari 1-30 hari</li>
+                        <li>📋 <strong style="color:var(--yellow);">MENDATANG</strong> — Sisa hari 31-90 hari</li>
+                        <li>✅ <strong style="color:var(--green);">AMAN</strong> — Sisa hari > 90 hari</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+</body>
+
+</html>
