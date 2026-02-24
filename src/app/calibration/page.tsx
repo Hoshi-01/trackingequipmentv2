@@ -45,7 +45,15 @@ const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
 
 function normalizeDate(value: string | undefined): string {
   const cleaned = (value || '').toString().trim();
-  if (!cleaned || /^0+$/.test(cleaned)) return '';
+  if (
+    !cleaned ||
+    /^0+$/.test(cleaned) ||
+    cleaned === '0001-01-01' ||
+    cleaned === '01/01/0001' ||
+    cleaned === '1/1/0001'
+  ) {
+    return '';
+  }
   const parsed = new Date(cleaned);
   if (Number.isNaN(parsed.getTime())) return '';
   return parsed.toISOString().split('T')[0];

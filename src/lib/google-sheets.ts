@@ -93,7 +93,15 @@ function parseCalibrationInterval(rawValue: unknown): number {
 
 function normalizeDateString(rawValue: unknown): string {
     const value = (rawValue ?? '').toString().trim();
-    if (!value || /^0+$/.test(value)) return '';
+    if (
+        !value ||
+        /^0+$/.test(value) ||
+        value === '0001-01-01' ||
+        value === '01/01/0001' ||
+        value === '1/1/0001'
+    ) {
+        return '';
+    }
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return value;
     return parsed.toISOString().split('T')[0];
