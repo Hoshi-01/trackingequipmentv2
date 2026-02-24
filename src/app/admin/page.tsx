@@ -80,14 +80,6 @@ function toYmd(value: string): string {
   return parsed.toISOString().split('T')[0];
 }
 
-function addMonths(baseDate: string, months: number): string {
-  const parsed = new Date(baseDate);
-  if (Number.isNaN(parsed.getTime())) return '';
-  const next = new Date(parsed);
-  next.setMonth(next.getMonth() + months);
-  return next.toISOString().split('T')[0];
-}
-
 function getCalibrationBadge(nextDate: string | undefined): { label: string; className: string } {
   if (!nextDate) return { label: 'Belum diatur', className: 'badge-maintenance' };
 
@@ -292,9 +284,7 @@ export default function AdminPage() {
     const calibrationLastDate = toYmd(formData.kalibrasiTerakhir);
     const parsedInterval = Number(formData.intervalKalibrasiBulan || 12);
     const calibrationInterval = Number.isFinite(parsedInterval) && parsedInterval > 0 ? Math.round(parsedInterval) : 12;
-    const calibrationNextDate =
-      toYmd(formData.kalibrasiBerikutnya) ||
-      (calibrationLastDate ? addMonths(calibrationLastDate, calibrationInterval) : '');
+    const calibrationNextDate = toYmd(formData.kalibrasiBerikutnya);
 
     const payload = {
       ...formData,
@@ -389,44 +379,6 @@ export default function AdminPage() {
     }
   };
 
-  const handleRecordRecalibration = async (item: Equipment) => {
-    const noSertifikat = prompt('No. sertifikat kalibrasi (boleh kosong):', item.noSertifikatKalibrasi || '');
-    if (noSertifikat === null) return;
-
-    const labKalibrasi = prompt('Nama lab kalibrasi (boleh kosong):', item.labKalibrasi || '');
-    if (labKalibrasi === null) return;
-
-    const biayaKalibrasi = prompt('Biaya kalibrasi (opsional):', item.biayaKalibrasi || '');
-    if (biayaKalibrasi === null) return;
-
-    setUpdating(item.id);
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const res = await fetch(`/api/equipment/${item.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          kalibrasiTerakhir: today,
-          noSertifikatKalibrasi: noSertifikat.trim(),
-          labKalibrasi: labKalibrasi.trim(),
-          biayaKalibrasi: biayaKalibrasi.trim(),
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Gagal mencatat rekalibrasi.');
-      }
-
-      showSuccess(`Rekalibrasi ${item.nama} berhasil dicatat.`);
-      fetchData();
-    } catch (error) {
-      showError(error instanceof Error ? error.message : 'Gagal mencatat rekalibrasi.');
-    } finally {
-      setUpdating(null);
-    }
-  };
-
   const handleSyncPreview = async () => {
     setPreviewing(true);
     setSyncMessage(null);
@@ -508,13 +460,6 @@ export default function AdminPage() {
 
   const borrowedCount = equipment.filter((item) => item.status === 'borrowed').length;
   const maintenanceCount = equipment.filter((item) => item.status === 'maintenance').length;
-
-  const computedNextCalibrationDate = useMemo(() => {
-    const normalizedLast = toYmd(formData.kalibrasiTerakhir);
-    const parsedInterval = Number(formData.intervalKalibrasiBulan || 12);
-    const interval = Number.isFinite(parsedInterval) && parsedInterval > 0 ? Math.round(parsedInterval) : 12;
-    return toYmd(formData.kalibrasiBerikutnya) || (normalizedLast ? addMonths(normalizedLast, interval) : '');
-  }, [formData.kalibrasiTerakhir, formData.intervalKalibrasiBulan, formData.kalibrasiBerikutnya]);
 
   if (!isLoggedIn) {
     return (
@@ -724,14 +669,7 @@ export default function AdminPage() {
                     <td data-label="Aksi">
                       <div className="toolbar" style={{ marginBottom: 0 }}>
                         <button className="btn-secondary btn-sm" onClick={() => openEditModal(item)}>
-                          Edit
-                        </button>
-                        <button
-                          className="btn-primary btn-sm"
-                          onClick={() => handleRecordRecalibration(item)}
-                          disabled={updating === item.id}
-                        >
-                          Rekalibrasi
+                          Edit Data
                         </button>
                         <button className="btn-ghost btn-sm" onClick={() => openPriorityModal(item)}>
                           Prioritas
@@ -875,11 +813,12 @@ export default function AdminPage() {
               </div>
 
               <label className="stack" style={{ gap: 6 }}>
-                <span className="panel-subtitle" style={{ fontWeight: 600 }}>Kalibrasi Berikutnya (otomatis)</span>
+                <span className="panel-subtitle" style={{ fontWeight: 600 }}>Kalibrasi Berikutnya</span>
                 <input
+                  type="date"
                   className="input-modern"
-                  value={computedNextCalibrationDate}
-                  readOnly
+                  value={formData.kalibrasiBerikutnya}
+                  onChange={(event) => setFormData((prev) => ({ ...prev, kalibrasiBerikutnya: event.target.value }))}
                 />
               </label>
 

@@ -93,19 +93,10 @@ function parseCalibrationInterval(rawValue: unknown): number {
 
 function normalizeDateString(rawValue: unknown): string {
     const value = (rawValue ?? '').toString().trim();
-    if (!value) return '';
+    if (!value || /^0+$/.test(value)) return '';
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return value;
     return parsed.toISOString().split('T')[0];
-}
-
-function calculateNextCalibrationDate(lastCalibration: string, intervalMonths: number): string {
-    const parsed = new Date(lastCalibration);
-    if (Number.isNaN(parsed.getTime())) return '';
-
-    const next = new Date(parsed);
-    next.setMonth(next.getMonth() + intervalMonths);
-    return next.toISOString().split('T')[0];
 }
 
 export interface HistoryRecord {
@@ -180,9 +171,7 @@ export async function addEquipment(equipment: Omit<Equipment, 'id'>): Promise<vo
     try {
         const kalibrasiTerakhir = normalizeDateString(equipment.kalibrasiTerakhir);
         const intervalKalibrasiBulan = parseCalibrationInterval(equipment.intervalKalibrasiBulan);
-        const kalibrasiBerikutnya =
-            normalizeDateString(equipment.kalibrasiBerikutnya) ||
-            (kalibrasiTerakhir ? calculateNextCalibrationDate(kalibrasiTerakhir, intervalKalibrasiBulan) : '');
+        const kalibrasiBerikutnya = normalizeDateString(equipment.kalibrasiBerikutnya);
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
@@ -240,9 +229,6 @@ export async function updateEquipment(rowIndex: number, equipment: Partial<Equip
             equipment.kalibrasiBerikutnya !== undefined
                 ? normalizeDateString(equipment.kalibrasiBerikutnya)
                 : normalizeDateString(currentRow[13]);
-        const calculatedNextCalibrationDate =
-            providedNextCalibrationDate ||
-            (nextCalibrationLast ? calculateNextCalibrationDate(nextCalibrationLast, nextCalibrationInterval) : '');
 
         const updatedRow = [
             equipment.nama ?? currentRow[0],
@@ -260,7 +246,7 @@ export async function updateEquipment(rowIndex: number, equipment: Partial<Equip
                 : normalizePriority(currentRow[10]),
             nextCalibrationLast,
             nextCalibrationInterval,
-            calculatedNextCalibrationDate,
+            providedNextCalibrationDate,
             equipment.noSertifikatKalibrasi ?? currentRow[14] ?? '',
             equipment.labKalibrasi ?? currentRow[15] ?? '',
             equipment.biayaKalibrasi ?? currentRow[16] ?? '',

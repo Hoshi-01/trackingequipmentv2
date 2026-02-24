@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import PaginationControls from '@/components/PaginationControls';
@@ -45,18 +44,11 @@ const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
 ];
 
 function normalizeDate(value: string | undefined): string {
-  if (!value) return '';
-  const parsed = new Date(value);
+  const cleaned = (value || '').toString().trim();
+  if (!cleaned || /^0+$/.test(cleaned)) return '';
+  const parsed = new Date(cleaned);
   if (Number.isNaN(parsed.getTime())) return '';
   return parsed.toISOString().split('T')[0];
-}
-
-function addMonths(value: string, months: number): string {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return '';
-  const next = new Date(parsed);
-  next.setMonth(next.getMonth() + months);
-  return next.toISOString().split('T')[0];
 }
 
 function calculateCalibrationStatus(nextDate: string): { status: CalibrationStatus; daysLeft: number | null; label: string } {
@@ -216,10 +208,12 @@ export default function CalibrationPage() {
     return equipment
       .map((item) => {
         const lastCalibration = normalizeDate(item.kalibrasiTerakhir);
-        const interval = Number.isFinite(item.intervalKalibrasiBulan) && (item.intervalKalibrasiBulan || 0) > 0
-          ? Math.round(item.intervalKalibrasiBulan as number)
-          : 12;
-        const nextCalibration = normalizeDate(item.kalibrasiBerikutnya) || (lastCalibration ? addMonths(lastCalibration, interval) : '');
+        const interval =
+          Number.isFinite(item.intervalKalibrasiBulan) && (item.intervalKalibrasiBulan || 0) > 0
+            ? Math.round(item.intervalKalibrasiBulan as number)
+            : 12;
+        const nextCalibration = normalizeDate(item.kalibrasiBerikutnya);
+        if (!nextCalibration) return null;
         const derivedStatus = calculateCalibrationStatus(nextCalibration);
 
         return {
@@ -232,6 +226,7 @@ export default function CalibrationPage() {
           statusLabel: derivedStatus.label,
         };
       })
+      .filter((item): item is CalibrationRow => item !== null)
       .sort((a, b) => {
         const aValue = a.daysLeft === null ? Number.POSITIVE_INFINITY : a.daysLeft;
         const bValue = b.daysLeft === null ? Number.POSITIVE_INFINITY : b.daysLeft;
@@ -378,9 +373,6 @@ export default function CalibrationPage() {
           <option value={50}>50</option>
           <option value={ALL_PAGE_SIZE}>All</option>
         </select>
-        <Link href="/admin" className="btn-primary">
-          + Catat Kalibrasi Baru
-        </Link>
       </div>
 
       {upcomingRows.length > 0 && (
@@ -476,9 +468,6 @@ export default function CalibrationPage() {
                         <td className="text-mono" data-label="No. Sertifikat">{item.noSertifikatKalibrasi || '-'}</td>
                         <td data-label="Aksi">
                           <div className="calibration-actions">
-                            <Link href="/admin" className="calibration-action-btn">
-                              Jadwalkan
-                            </Link>
                             {certificateUrl ? (
                               <a
                                 href={certificateUrl}
