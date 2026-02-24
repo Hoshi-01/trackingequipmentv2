@@ -213,33 +213,36 @@ export default function CalibrationPage() {
   }, []);
 
   const rows = useMemo<CalibrationRow[]>(() => {
-    return equipment
-      .map((item) => {
-        const lastCalibration = normalizeDate(item.kalibrasiTerakhir);
-        const interval =
-          Number.isFinite(item.intervalKalibrasiBulan) && (item.intervalKalibrasiBulan || 0) > 0
-            ? Math.round(item.intervalKalibrasiBulan as number)
-            : 12;
-        const nextCalibration = normalizeDate(item.kalibrasiBerikutnya);
-        if (!nextCalibration) return null;
-        const derivedStatus = calculateCalibrationStatus(nextCalibration);
+    const normalizedRows: CalibrationRow[] = [];
 
-        return {
-          ...item,
-          kalibrasiTerakhir: lastCalibration,
-          intervalKalibrasiBulan: interval,
-          nextCalibration,
-          daysLeft: derivedStatus.daysLeft,
-          calibrationStatus: derivedStatus.status,
-          statusLabel: derivedStatus.label,
-        };
-      })
-      .filter((item): item is CalibrationRow => item !== null)
-      .sort((a, b) => {
-        const aValue = a.daysLeft === null ? Number.POSITIVE_INFINITY : a.daysLeft;
-        const bValue = b.daysLeft === null ? Number.POSITIVE_INFINITY : b.daysLeft;
-        return aValue - bValue;
+    for (const item of equipment) {
+      const lastCalibration = normalizeDate(item.kalibrasiTerakhir);
+      const interval =
+        Number.isFinite(item.intervalKalibrasiBulan) && (item.intervalKalibrasiBulan || 0) > 0
+          ? Math.round(item.intervalKalibrasiBulan as number)
+          : 12;
+      const nextCalibration = normalizeDate(item.kalibrasiBerikutnya);
+      if (!nextCalibration) continue;
+
+      const derivedStatus = calculateCalibrationStatus(nextCalibration);
+      normalizedRows.push({
+        ...item,
+        kalibrasiTerakhir: lastCalibration,
+        intervalKalibrasiBulan: interval,
+        nextCalibration,
+        daysLeft: derivedStatus.daysLeft,
+        calibrationStatus: derivedStatus.status,
+        statusLabel: derivedStatus.label,
       });
+    }
+
+    normalizedRows.sort((a, b) => {
+      const aValue = a.daysLeft === null ? Number.POSITIVE_INFINITY : a.daysLeft;
+      const bValue = b.daysLeft === null ? Number.POSITIVE_INFINITY : b.daysLeft;
+      return aValue - bValue;
+    });
+
+    return normalizedRows;
   }, [equipment]);
 
   const filteredRows = useMemo(() => {
